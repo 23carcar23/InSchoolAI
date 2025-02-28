@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat System</title>
+<link rel="stylesheet" href="front.css">
+<style>
+  /* Additional styles to ensure proper centering */
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
+  
+  .code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+<!-- Login Options Screen -->
+<div class="login-container" id="loginContainer">
+<div class="login-box">
+<h1>Choose Login Type</h1>
+<div class="login-buttons">
+<button id="teacherBtn" class="login-btn">Teacher</button>
+<button id="studentBtn" class="login-btn">Student</button>
+</div>
+</div>
+</div>
+<!-- Student Code Entry Screen -->
+<div class="code-container" id="codeContainer" style="display: none;">
+<div class="login-box">
+<h1>Enter Access Code</h1>
+<input type="password" id="accessCode" maxlength="5" placeholder="5-digit code">
+<div class="code-buttons">
+<button id="submitCodeBtn" class="login-btn">Submit</button>
+<button id="backBtn" class="login-btn">Back</button>
+</div>
+</div>
+</div>
+<!-- Chat Interface (Initially Hidden) -->
+<div class="chat-container" id="chatContainer" style="display: none;">
+<header class="chat-header">
+<h1>Chat System</h1>
+<div class="header-right">
+<div class="user-type" id="userTypeDisplay"></div>
+<button id="logoutBtn" class="logout-btn">Back to Login</button>
+</div>
+</header>
+<div class="chat-box" id="chatBox">
+<!-- Messages will be displayed here -->
+</div>
+<div class="chat-input">
+<input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+<button onclick="sendMessage()">
+<span class="send-icon">→</span>
+</button>
+</div>
+</div>
+<script src="login.js"></script>
+<script src="front.mjs"></script>
+<script>
+// Add this script to ensure the logout button works
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            // Hide chat container
+            document.getElementById('chatContainer').style.display = 'none';
+            // Show login container and ensure it's properly styled
+            const loginContainer = document.getElementById('loginContainer');
+            loginContainer.style.display = 'flex';
+            // Clear any messages in the chat box
+            const chatBox = document.getElementById('chatBox');
+            if (chatBox) {
+                chatBox.innerHTML = '';
+            }
+            // Clear the input field
+            const userInput = document.getElementById('userInput');
+            if (userInput) {
+                userInput.value = '';
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>
