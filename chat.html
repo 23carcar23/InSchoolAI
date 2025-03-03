@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat System - Classroom</title>
+<link rel="stylesheet" href="front.css">
+<!-- Add Socket.IO client library -->
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<style>
+body {
+background-color: black;
+}
+</style>
+</head>
+<body>
+<!-- Chat Interface -->
+<div class="chat-container" id="chatContainer">
+<header class="chat-header">
+<h1>Chat System</h1>
+<div class="header-right">
+<div class="user-type" id="userTypeDisplay"></div>
+<button id="logoutBtn" class="logout-btn">Back to Login</button>
+</div>
+</header>
+<div class="chat-box" id="chatBox">
+<!-- Messages will be displayed here -->
+</div>
+<div class="chat-input">
+<input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+<button onclick="sendMessage()">
+<span class="send-icon">→</span>
+</button>
+</div>
+</div>
+<!-- JavaScript for logout button -->
+<script>
+document.getElementById('logoutBtn').addEventListener('click', function() {
+window.location.href = 'index.html';
+ });
+</script>
+<script src="front.mjs"></script>
+</body>
+</html>

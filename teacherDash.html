@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .access-code-banner {
+            background-color: #333;
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 18px;
+        }
+        .code-highlight {
+            background-color: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .dashboard-container {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin-top: 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .back-btn:hover {
+            background-color: #45a049;
+        }
+        .copy-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .loading-indicator {
+            display: inline-block;
+            animation: spin 1s infinite linear;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Chat styling */
+        .chat-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            border: 1px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #333;
+            padding: 10px 15px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        .chat-header h2 {
+            margin: 0;
+            color: white;
+        }
+        #messages {
+            list-style-type: none;
+            padding: 10px;
+            margin: 0;
+            min-height: 300px;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #222;
+        }
+        #messages li {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background-color: #333;
+            border-radius: 5px;
+            word-wrap: break-word;
+        }
+        .chat-input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #333;
+        }
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #222;
+            color: white;
+        }
+        .send-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .send-btn:hover {
+            background-color: #45a049;
+        }
+        #status {
+            color: #888;
+            font-style: italic;
+            margin: 5px 0;
+            text-align: center;
+        }
+        .clear-chat-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .clear-chat-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <!-- Access Code Banner -->
+    <div class="access-code-banner">
+        Class Access Code: <span class="code-highlight" id="accessCodeDisplay"><span class="loading-indicator">⟳</span></span>
+        <button class="copy-btn" onclick="copyAccessCode()">Copy</button>
+    </div>
+    
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <h1>Teacher Dashboard</h1>
+        <p>Share the access code with your students to let them join</p>
+        <button class="back-btn" onclick="goToHome()">Back to Home</button>
+    </div>
+    
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>Classroom Chat</h2>
+            <button class="clear-chat-btn" onclick="clearChatHistory()">Clear Chat History</button>
+        </div>
+        <ul id="messages"></ul>
+    </div>
+
+    <script>
+        // Chat persistence using localStorage
+        const CHAT_STORAGE_KEY = 'teacherDashboardChatMessages';
+        
+        // Load saved messages from localStorage
+        function loadChatHistory() {
+            const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (savedMessages) {
+                return JSON.parse(savedMessages);
+            }
+            return [];
+        }
+        
+        // Save messages to localStorage
+        function saveChatHistory(messages) {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+        }
+        
+        // Add a message to the chat and save to localStorage
+        function addMessageToChat(message) {
+            const li = document.createElement("li");
+            li.innerText = message;
+            document.getElementById("messages").appendChild(li);
+            
+            // Scroll to the bottom
+            const messagesList = document.getElementById("messages");
+            messagesList.scrollTop = messagesList.scrollHeight;
+            
+            // Save to localStorage
+            const messages = loadChatHistory();
+            messages.push(message);
+            saveChatHistory(messages);
+        }
+        
+        // Display all messages from history
+        function displayChatHistory() {
+            const messagesList = document.getElementById("messages");
+            messagesList.innerHTML = ''; // Clear existing messages
+            
+            const messages = loadChatHistory();
+            messages.forEach(message => {
+                const li = document.createElement("li");
+                li.innerText = message;
+                messagesList.appendChild(li);
+            });
+            
+            // Scroll to the bottom
+            messagesList.scrollTop = messagesList.scrollHeight;
+        }
+        
+        // Clear chat history
+        function clearChatHistory() {
+            if (confirm("Are you sure you want to clear all chat history?")) {
+                localStorage.removeItem(CHAT_STORAGE_KEY);
+                document.getElementById("messages").innerHTML = '';
+            }
+        }
+        
+        // Copy access code to clipboard
+        function copyAccessCode() {
+            const codeElement = document.getElementById('accessCodeDisplay');
+            const code = codeElement.textContent;
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    // Visual feedback for copy
+                    const originalColor = codeElement.style.backgroundColor;
+                    codeElement.style.backgroundColor = '#1a5e1a';
+                    setTimeout(() => {
+                        codeElement.style.backgroundColor = originalColor;
+                    }, 300);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        }
+        
+        // Return home
+        function goToHome() {
+            window.location.href = 'index.html';
+        }
+        
+        // Display the access code when the page loads
+        window.onload = async function() {
+            const codeDisplay = document.getElementById('accessCodeDisplay');
+            const accessCode = "82783"
+            codeDisplay.textContent = accessCode;
+            
+            // Display chat history
+            displayChatHistory();
+            
+            // Connect to chat after setting access code
+            connectToChat();
+        };
+        
+        // Socket.IO Chat Functionality
+        function connectToChat() {
+            // Connect to the server
+            const socket = io("http://localhost:75");
+            // Status display removed
+            
+            // Connection events
+            socket.on("connect", () => {
+                console.log("Connected to server");
+            });
+            
+            socket.on("connect_error", (error) => {
+                console.log("Connection error:", error);
+            });
+            
+            // Message handling
+            socket.on("message", (data) => {
+                console.log("Message received:", data);
+                addMessageToChat(data);
+            });
+            
+            // Handle key press for Enter
+            window.handleKeyPress = function(event) {
+                if (event.key === "Enter") {
+                    console.log("Enter key pressed, but send message function is removed");
+                    // Message sending functionality has been removed
+                    // The input field will still clear for better UX
+                    document.getElementById("message").value = "";
+                }
+            };
+        }
+    </script>
+</body>
+</html>

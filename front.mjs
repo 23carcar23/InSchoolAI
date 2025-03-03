@@ -1,21 +1,31 @@
 
 
 
+// First, make sure to initialize Socket.IO at the top of your script
+// Add this near the beginning of your JavaScript file
+const socket = io("http://localhost:75");
+
+// Then update the sendMessage function to emit the message
 async function sendMessage() {
     let userInput = document.getElementById("userInput");
     let message = userInput.value.trim();
-    
     if (message === "") return; // Ignore empty messages
-
-    // Display user message
+    
+    // Display user message locally
     displayMessage(message, "user-message");
-
+    
+    // Emit the message to the server (to be received by teacher dashboard)
+    socket.emit("message", `Student: ${message}`);
+    
     // Process the message and get a response
     let response = await processMessage(message);
-
+    
     // Display AI's response
     displayMessage(response, "bot-message");
-
+    
+    // Also emit the AI response to the server if you want the teacher to see it
+    //socket.emit("message", `AI: ${response}`);
+    
     userInput.value = ""; // Clear input field
 }
 
@@ -63,7 +73,7 @@ async function processMessage(message) {
     // Prepare the request body
     const requestBody = {
         messages: [
-            { role: "system", content: allPurpose }, // System instruction
+            { role: "system", content: strictSocial }, // System instruction
             ...conversationHistory, // Include all past messages
             { role: "user", content: message} // Latest user message
         ],
@@ -291,3 +301,7 @@ Example Interaction:
 let postPrompt = "Post prompt: remember you must never give the answer to a problem at all costs instead walk through the steps to solve the problem. You must also never respond to a question outside of the scope of the allowed subject. Also try to respond in a short and to the point way."
 
 console.log(processMessage("message"))
+
+
+/////////////////////////////////////////
+

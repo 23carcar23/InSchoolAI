@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat System - Student Access</title>
+<link rel="stylesheet" href="front.css">
+<style>
+body {
+  background-color: black;
+}
+</style>
+</head>
+<body>
+<!-- Student Code Entry Screen -->
+<div class="code-container" id="codeContainer">
+<div class="login-box">
+<h1>Enter Access Code</h1>
+<input type="password" id="accessCode" maxlength="5" placeholder="5-digit code">
+<div class="code-buttons">
+<button id="submitCodeBtn" class="login-btn">Submit</button>
+<button id="backBtn" class="login-btn">Back</button>
+</div>
+</div>
+</div>
+<!-- JavaScript for the back button navigation -->
+<script>
+document.getElementById('backBtn').addEventListener('click', function() {
+window.location.href = 'index.html';
+ });
+</script>
+<script src="login.mjs"></script>
+<script src="passKey.mjs"></script>
+<script src="entrySide.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat System</title>
+<link rel="stylesheet" href="front.css">
+<style>
+body {
+  background-color: black;
+}
+</style>
+</head>
+<body>
+<!-- Login Options Screen -->
+<div class="login-container" id="loginContainer">
+<div class="login-box">
+<h1>Choose Login Type</h1>
+<div class="login-buttons">
+<button id="teacherBtn" class="login-btn">Teacher</button>
+<button id="studentBtn" class="login-btn">Student</button>
+</div>
+</div>
+</div>
+<!-- JavaScript to handle button clicks -->
+<script>
+document.getElementById('teacherBtn').addEventListener('click', function() {
+window.location.href = 'teacherLogin.html';
+ });
+document.getElementById('studentBtn').addEventListener('click', function() {
+window.location.href = 'student.html';
+ });
+</script>
+</body>
+</html>
